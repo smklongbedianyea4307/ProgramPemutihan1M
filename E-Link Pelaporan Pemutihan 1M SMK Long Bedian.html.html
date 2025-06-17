@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borang Laporan Program Pemutihan 1M</title>
+    
+    <!-- Pustaka untuk Penjanaan PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* --- STYLING UTAMA UNTUK BORANG --- */
+        :root {
+            --primary-color: #0d47a1; /* Biru Tua */
+            --secondary-color: #1565c0; /* Biru Cerah */
+            --accent-color: #ffc107; /* Kuning Amber */
+            --background-color: #f4f7f9;
+            --text-color: #333;
+            --light-text-color: #fff;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            max-height: 90px;
+        }
+
+        .header h1 {
+            margin: 10px 0 5px 0;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: var(--secondary-color);
+            font-weight: 500;
+            font-size: 18px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            color: var(--primary-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="datetime-local"]:focus,
+        textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        
+        td input[type="text"] {
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        td:first-child {
+            width: 5%;
+            text-align: center;
+        }
+
+        .add-row-btn {
+            background-color: var(--secondary-color);
+            color: var(--light-text-color);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .add-row-btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .delete-row-btn {
+             background-color: #e53935;
+             color: white;
+             border: none;
+             padding: 5px 10px;
+             border-radius: 5px;
+             cursor: pointer;
+        }
+        .delete-row-btn:hover {
+            background-color: #c62828;
+        }
+
+        .image-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        input[type="file"] {
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--accent-color), #ffb300);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 30px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            color: #666;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* --- STYLING UNTUK TEMPLAT PDF (DISEMBUNYIKAN) --- */
+        #pdf-content {
+            position: absolute; left: -9999px; width: 210mm; min-height: 297mm; padding: 15mm; background: white; box-sizing: border-box; color: #000; font-family: Arial, sans-serif; font-size: 11pt; display: flex; flex-direction: column;
+        }
+        #pdf-content > .pdf-main-content { flex-grow: 1; }
+        .pdf-header { text-align: center; margin-bottom: 20px; }
+        .pdf-logo-container { display: flex; justify-content: center; align-items: center; gap: 30px; margin-bottom: 10px; }
+        .pdf-logo { max-height: 70px; }
+        .pdf-header h1 { font-size: 16pt; font-weight: bold; margin: 10px 0 5px 0; }
+        .pdf-header h2 { font-size: 14pt; margin: 0; font-weight: normal; }
+        .pdf-section { margin-bottom: 15px; }
+        .pdf-details-grid { display: grid; grid-template-columns: 180px 1fr; gap: 5px 10px; margin-bottom: 15px; }
+        .pdf-details-grid .label { font-weight: bold; }
+        .pdf-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-top: 5px; }
+        .pdf-table th, .pdf-table td { border: 1px solid #333; padding: 5px; text-align: left; }
+        .pdf-table th { background-color: #e0e0e0; font-weight: bold; }
+        .pdf-table td.bil { width: 40px; text-align: center; }
+        .pdf-section h3 { font-size: 12pt; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 3px; }
+        .pdf-refleksi-text { font-size: 10pt; line-height: 1.5; text-align: justify; white-space: pre-wrap; padding: 8px; background-color: #f9f9f9; border-left: 3px solid #ccc; }
+        .pdf-image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5mm; margin-top: 10px; page-break-inside: avoid; }
+        .pdf-image-container { border: 1px solid #ccc; padding: 3px; }
+        .pdf-image-container img { width: 100%; height: auto; display: block; }
+        .pdf-footer { margin-top: 25px; padding-top: 10px; border-top: 1px solid #555; text-align: right; font-size: 9pt; font-style: italic; color: #333; page-break-inside: avoid; }
+        .pdf-footer p { margin: 0; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/25s9pS1V/Logo-Sekolah-SMK-Long-Bedian.jpg" alt="Logo SMK Long Bedian" class="logo">
+                <img src="https://i.postimg.cc/FKLGxXTm/Logo-TS25.png" alt="Logo TS25" class="logo">
+            </div>
+            <h1>Borang Laporan Program Pemutihan 1M</h1>
+            <h2>Sekolah Menengah Kebangsaan Long Bedian</h2>
+        </header>
+
+        <form id="reportForm">
+            <div class="form-section">
+                <h3>Butiran Asas Program</h3>
+                <div class="form-group">
+                    <label for="guruName">Nama Guru / Mentor Kumpulan</label>
+                    <input type="text" id="guruName" name="guruName" required>
+                </div>
+                <div class="form-group">
+                    <label for="activityTitle">Tajuk Aktiviti</label>
+                    <input type="text" id="activityTitle" name="activityTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="dateTime">Tarikh / Waktu Mula</label>
+                    <input type="datetime-local" id="dateTime" name="dateTime" required>
+                </div>
+                <!-- [DIUBAH] Kedudukan dipindahkan ke sini -->
+                <div class="form-group">
+                    <label for="refleksi">Refleksi / Impak</label>
+                    <textarea id="refleksi" name="refleksi" rows="4" placeholder="Nyatakan refleksi atau impak program terhadap murid..." required></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Kehadiran Murid</h3>
+                <table id="hadirTable">
+                    <thead>
+                        <tr><th>Bil.</th><th>Nama Murid</th><th>Kelas</th><th>Tindakan</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="bil">1</td>
+                            <td><input type="text" placeholder="Nama penuh murid" required></td>
+                            <td><input type="text" placeholder="Contoh: 5 Sains" required></td>
+                            <td><button type="button" class="delete-row-btn" onclick="deleteRow(this, 'hadirTable')">Padam</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="add-row-btn" onclick="addRow('hadirTable')">+ Tambah Murid</button>
+            </div>
+            
+            <div class="form-section">
+                <h3>Murid Tidak Hadir</h3>
+                <table id="tidakHadirTable">
+                    <thead>
+                        <tr><th>Bil.</th><th>Nama Murid</th><th>Kelas</th><th>Tindakan</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" onclick="addRow('tidakHadirTable')">+ Tambah Murid</button>
+            </div>
+
+            <div class="form-section">
+                <h3>Gambar Aktiviti (4 Keping)</h3>
+                <div class="image-upload-grid">
+                    <div class="form-group"><label for="image1">Gambar 1</label><input type="file" id="image1" accept="image/*" required></div>
+                    <div class="form-group"><label for="image2">Gambar 2</label><input type="file" id="image2" accept="image/*" required></div>
+                    <div class="form-group"><label for="image3">Gambar 3</label><input type="file" id="image3" accept="image/*" required></div>
+                    <div class="form-group"><label for="image4">Gambar 4</label><input type="file" id="image4" accept="image/*" required></div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="submit-btn">Jana Laporan PDF</button>
+        </form>
+    </div>
+
+    <!-- TEMPLAT UNTUK DIJADIKAN PDF (TERSEMBUNYI) -->
+    <div id="pdf-content">
+        <div class="pdf-main-content">
+            <div class="pdf-header">
+                <div class="pdf-logo-container">
+                    <img src="https://i.postimg.cc/25s9pS1V/Logo-Sekolah-SMK-Long-Bedian.jpg" alt="Logo SMK Long Bedian" class="pdf-logo">
+                    <img src="https://i.postimg.cc/FKLGxXTm/Logo-TS25.png" alt="Logo TS25" class="pdf-logo">
+                </div>
+                <h1>LAPORAN PROGRAM PEMUTIHAN 1M</h1>
+                <h2>SEKOLAH MENENGAH KEBANGSAAN LONG BEDIAN</h2>
+            </div>
+            
+            <div class="pdf-section">
+                <div class="pdf-details-grid">
+                    <div class="label">Nama Guru / Mentor:</div><div id="pdf-guruName"></div>
+                    <div class="label">Tajuk Aktiviti:</div><div id="pdf-activityTitle"></div>
+                    <div class="label">Tarikh & Waktu:</div><div id="pdf-dateTime"></div>
+                </div>
+            </div>
+
+            <!-- Susunan PDF dikekalkan kerana ia logik dan kemas -->
+            <div class="pdf-section">
+                <h3>Refleksi / Impak</h3>
+                <p id="pdf-refleksi" class="pdf-refleksi-text"></p>
+            </div>
+
+            <div class="pdf-section">
+                <h3>Senarai Kehadiran Murid</h3>
+                <table class="pdf-table" id="pdf-hadirTable">
+                    <thead><tr><th class="bil">Bil.</th><th>Nama Murid</th><th>Kelas</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="pdf-section">
+                <h3>Senarai Murid Tidak Hadir</h3>
+                <table class="pdf-table" id="pdf-tidakHadirTable">
+                    <thead><tr><th class="bil">Bil.</th><th>Nama Murid</th><th>Kelas</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="pdf-section">
+                <h3>Dokumentasi Bergambar</h3>
+                <div class="pdf-image-grid">
+                    <div class="pdf-image-container"><img id="pdf-image1" src=""></div>
+                    <div class="pdf-image-container"><img id="pdf-image2" src=""></div>
+                    <div class="pdf-image-container"><img id="pdf-image3" src=""></div>
+                    <div class="pdf-image-container"><img id="pdf-image4" src=""></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pdf-footer">
+            <p>Laporan Pemutihan 1M</p>
+            <p>SMK Long Bedian</p>
+        </div>
+    </div>
+
+    <script>
+        // TIADA PERUBAHAN PADA SCRIPT. SEMUA FUNGSI KEKAL SAMA.
+
+        function addRow(tableId) {
+            const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            let requiredAttr = (tableId === 'hadirTable' && table.rows.length === 1) ? 'required' : '';
+            newRow.innerHTML = `
+                <td class="bil">${table.rows.length}</td>
+                <td><input type="text" placeholder="Nama penuh murid" ${requiredAttr}></td>
+                <td><input type="text" placeholder="Contoh: 5 Sains" ${requiredAttr}></td>
+                <td><button type="button" class="delete-row-btn" onclick="deleteRow(this, '${tableId}')">Padam</button></td>
+            `;
+            updateRowNumbers(tableId);
+        }
+
+        function deleteRow(button, tableId) {
+            const row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            updateRowNumbers(tableId);
+        }
+
+        function updateRowNumbers(tableId) {
+            const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            const rows = table.getElementsByTagName('tbody')[0].rows;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].getElementsByClassName('bil')[0].textContent = i + 1;
+            }
+        }
+
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = 'Menjana Laporan...';
+            submitBtn.disabled = true;
+            
+            const guruName = document.getElementById('guruName').value;
+            const activityTitle = document.getElementById('activityTitle').value;
+            const refleksi = document.getElementById('refleksi').value;
+            const rawDateTime = new Date(document.getElementById('dateTime').value);
+            const formattedDateTime = rawDateTime.toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' }) + ', ' + rawDateTime.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('pdf-guruName').textContent = guruName;
+            document.getElementById('pdf-activityTitle').textContent = activityTitle;
+            document.getElementById('pdf-dateTime').textContent = formattedDateTime;
+            document.getElementById('pdf-refleksi').textContent = refleksi;
+            
+            populatePdfTable('hadirTable', 'pdf-hadirTable');
+            populatePdfTable('tidakHadirTable', 'pdf-tidakHadirTable');
+
+            const imagePromises = [
+                loadImage(document.getElementById('image1').files[0], 'pdf-image1'),
+                loadImage(document.getElementById('image2').files[0], 'pdf-image2'),
+                loadImage(document.getElementById('image3').files[0], 'pdf-image3'),
+                loadImage(document.getElementById('image4').files[0], 'pdf-image4')
+            ];
+
+            Promise.all(imagePromises).then(() => {
+                const { jsPDF } = window.jspdf;
+                const pdfContent = document.getElementById('pdf-content');
+
+                html2canvas(pdfContent, {
+                    scale: 2, useCORS: true, logging: false, windowHeight: pdfContent.scrollHeight
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = 210;
+                    const pdfHeight = 297; 
+                    const ratio = canvas.width / pdfWidth;
+                    const calculatedHeight = canvas.height / ratio;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, calculatedHeight > pdfHeight ? pdfHeight : calculatedHeight);
+                    
+                    pdf.save(`Laporan Pemutihan 1M - ${activityTitle}.pdf`);
+                    submitBtn.textContent = 'Jana Laporan PDF';
+                    submitBtn.disabled = false;
+                }).catch(err => {
+                    console.error("Error generating PDF:", err);
+                    alert("Gagal menjana PDF. Sila pastikan semua gambar telah dimuat naik dan cuba lagi.");
+                    submitBtn.textContent = 'Jana Laporan PDF';
+                    submitBtn.disabled = false;
+                });
+            });
+        });
+
+        function populatePdfTable(formTableId, pdfTableId) {
+            const formTable = document.getElementById(formTableId).getElementsByTagName('tbody')[0];
+            const pdfTableBody = document.getElementById(pdfTableId).getElementsByTagName('tbody')[0];
+            pdfTableBody.innerHTML = ''; 
+
+            if(formTable.rows.length === 0 || (formTable.rows.length === 1 && !formTable.rows[0].cells[1].getElementsByTagName('input')[0].value)) {
+                 const newRow = pdfTableBody.insertRow();
+                 newRow.insertCell(0).innerHTML = "- Tiada -";
+                 newRow.cells[0].colSpan = 3;
+                 newRow.cells[0].style.textAlign = 'center';
+            } else {
+                for (let i = 0; i < formTable.rows.length; i++) {
+                    const formRow = formTable.rows[i];
+                    const name = formRow.cells[1].getElementsByTagName('input')[0].value;
+                    const grade = formRow.cells[2].getElementsByTagName('input')[0].value;
+                    if (name || grade) {
+                        const newRow = pdfTableBody.insertRow();
+                        newRow.innerHTML = `<td class="bil">${pdfTableBody.rows.length}</td><td>${name}</td><td>${grade}</td>`;
+                    }
+                }
+                if (pdfTableBody.rows.length === 0) {
+                     const newRow = pdfTableBody.insertRow();
+                     newRow.insertCell(0).innerHTML = "- Tiada -";
+                     newRow.cells[0].colSpan = 3;
+                     newRow.cells[0].style.textAlign = 'center';
+                }
+            }
+        }
+
+        function loadImage(file, imgElementId) {
+            return new Promise((resolve) => {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById(imgElementId).src = e.target.result;
+                        resolve();
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    document.getElementById(imgElementId).src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                    resolve();
+                }
+            });
+        }
+        
+        addRow('tidakHadirTable');
+        deleteRow(document.querySelector('#tidakHadirTable .delete-row-btn'), 'tidakHadirTable');
+    </script>
+</body>
+</html>
